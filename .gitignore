@@ -93,3 +93,8 @@ VECTOR-DB-INDEX-REPORT.md
 VECTOR-FUNCTION-VERIFY-REPORT.md
 VECTOR-PROVIDER-REGISTRATION-REPORT.md
 PROJECT-OVERVIEW.md
+
+# ============================================================
+# 排查报告（只读排查产物，不参与版本管理）
+# ============================================================
+*REPORT*.md
