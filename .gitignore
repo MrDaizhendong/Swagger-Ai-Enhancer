@@ -1,0 +1,95 @@
+# ============================================================
+# 通用忽略
+# ============================================================
+.DS_Store
+Thumbs.db
+*.log
+
+# ============================================================
+# Java / Maven 构建产物
+# ============================================================
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# ============================================================
+# IDE / 编辑器
+# ============================================================
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# ============================================================
+# 操作系统
+# ============================================================
+Desktop.ini
+
+# ============================================================
+# 临时文件 / 调试输出
+# ============================================================
+tmp-decompile/
+tmp-decompile2/
+app-boot.log
+boot-err.txt
+boot-full.log
+boot-log.txt
+compile.log
+demo-springboot-err.log
+demo-startup.log
+demo-stderr.log
+demo-stdout.log
+swagger-ai-plugin.js
+
+# ============================================================
+# 排查报告（只读排查产物，不参与版本管理）
+# ============================================================
+BENCH-REGISTRATION-REPORT.md
+CHECK-REPORT.md
+COLLECTION-NAME-SOURCE-REPORT.md
+COLLECTION-STATUS-REPORT.md
+COMPLETE-NULL-DEBUG-REPORT.md
+CRUD-AUDIT-REPORT.md
+DIMENSION-TRACE-REPORT.md
+DOC-BUTTON-VERIFY-REPORT.md
+DOC-INTERNAL-PATH-REPORT.md
+ENHANCER-EMPTY-PATHS-REPORT.md
+ENHANCER-EMPTY-PATHS-ROOTCAUSE.md
+FIELD-DESC-BUG-REPORT.md
+FIELD-DESC-RENDER-BUG-REPORT.md
+LOAD-STATE-DEBUG-REPORT.md
+MARKDOWN-DEP-DEBUG-REPORT.md
+MARKDOWN-RENDER-FAIL-REPORT.md
+MARKDOWN-STILL-LOADING-REPORT.md
+MILVUS-API-REPORT.md
+MISSING-ENDPOINTS-REPORT.md
+MODULE-BOUNDARY-REPORT.md
+OPTIMIZATION-CONSISTENCY-REPORT.md
+PLACEHOLDER-MISSING-REPORT.md
+PLUGIN-LOAD-REPORT.md
+POST-REFRESH-ISSUE-REPORT.md
+PROMPT-CONSTRUCTION-TRACE-REPORT.md
+RAG-GENERATION-REPORT.md
+RAG-NO-HIT-REPORT.md
+RAG-SYNC-REPORT.md
+README-ACCURACY-REPORT.md
+REFINE-TOKEN-OVERFLOW-REPORT.md
+SKILL-LIKE-REPORT.md
+SKILL-LAST-STAGE-REPORT.md
+SKILL-PROMPT-FORMAT-REPORT.md
+STARTUP-FIX-LOG.md
+STARTUP-IMPACT-REPORT.md
+SWAGGER-UI-ISSUE-REPORT.md
+TEST-REPORT.md
+TIMEOUT-FIX-VERIFY-REPORT.md
+VECTOR-DB-INDEX-REPORT.md
+VECTOR-FUNCTION-VERIFY-REPORT.md
+VECTOR-PROVIDER-REGISTRATION-REPORT.md
+PROJECT-OVERVIEW.md

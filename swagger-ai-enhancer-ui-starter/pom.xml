@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.swagger.ai</groupId>
+        <artifactId>swagger-ai-enhancer-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>swagger-ai-enhancer-ui-starter</artifactId>
+    <name>swagger-ai-enhancer-ui-starter</name>
+    <description>Enhanced Swagger UI frontend (static resources + script injection filter)</description>
+
+    <dependencies>
+        <!-- 提供 @AutoConfiguration、ConditionalOnWebApplication 等注解 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 提供 Filter、HttpServletRequest、FilterRegistrationBean 等 Servlet/Web API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

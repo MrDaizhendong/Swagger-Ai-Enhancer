@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: swagger-ai-enhancer-demo
+  # 排除 Spring Boot 自带的 DataSourceAutoConfiguration，避免在缺少 spring.datasource.url 时
+  # 因自动配置数据源而导致启动失败。RAG 启用时由项目内部的 MybatisPlusConfig 接管数据源装配，
+  # 不受此 exclude 影响；本项目仅管理 ai-starter 自身的 RAG 文档索引表。
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  # 数据库连接信息（仅在 RAG 启用时生效；未启用 RAG 时 DataSource 不会装配）。
+  # 生产环境建议通过环境变量 SPRING_DATASOURCE_PASSWORD 或 MYSQL_PASSWORD 注入；
+  # 不要把真实密码提交到版本库。
+  datasource:
+    password: root
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /v3/api-docs-enhanced
+
+# ====================================================================
+# AI 增强总开关：启用后将注入 Ollama 驱动的补全、文档生成、RAG 检索
+#   - 若需关闭 AI 能力，将 swagger-ai-enhancer.enabled 改为 false
+#   - 若本机没有 Ollama，可改为 mock: true（mock 走代码内置模板直接返回，
+#     仅用于前端按钮冒烟测试，文本为占位）
+# ====================================================================
+swagger-ai-enhancer:
+  enabled: true
+  springdoc:
+    enhance-enabled: true
+    ai-service-url: http://localhost:8080
+  ai:
+    mode: embedded
+    llm:
+      provider: ollama
+      timeout-seconds: 120
+      max-tokens: 4096
+      temperature: 0.3
+      ollama:
+        base-url: http://localhost:11434
+        model: llama3:latest
+    rag:
+      enabled: true
+      vector-store: milvus
+      collection-prefix: swagger_knowledge
+      # 知识库索引时需要的 embedding（由 Ollama 的 nomic-embed-text 提供）
+      embedding-model: nomic-embed-text:latest
+      # 相似度阈值：低于此分数的检索结果会被丢弃
+      similarity-threshold: 0.7
+      # 知识路径：本地文件或目录，以 file: 开头；也可直接写 classpath:
+      knowledge-paths:
+        product-doc: ""
+        requirement-doc: ""
+        delivery-doc: ""
+        testcase-doc: ""
+        integration-guide: ""
+        api: ""
+
+# 开发时日志等级
+logging:
+  level:
+    root: INFO
+    com.swagger.ai.enhancer: DEBUG

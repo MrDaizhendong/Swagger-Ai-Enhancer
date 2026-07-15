@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.swagger.ai</groupId>
+        <artifactId>swagger-ai-enhancer-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>swagger-ai-enhancer-all-starter</artifactId>
+    <name>swagger-ai-enhancer-all-starter</name>
+    <description>Aggregation starter: ui + springdoc + ai</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-ui-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-springdoc-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-ai-starter</artifactId>
+        </dependency>
+        <!-- 默认引入全部四个向量库子模块，保持开箱即用体验 -->
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-ai-starter-milvus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-ai-starter-qdrant</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-ai-starter-pgvector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-ai-starter-weaviate</artifactId>
+        </dependency>
+    </dependencies>
+</project>

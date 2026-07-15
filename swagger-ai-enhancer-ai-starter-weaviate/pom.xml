@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.swagger.ai</groupId>
+        <artifactId>swagger-ai-enhancer-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>swagger-ai-enhancer-ai-starter-weaviate</artifactId>
+    <name>swagger-ai-enhancer-ai-starter-weaviate</name>
+    <description>Weaviate vector store provider for swagger-ai-enhancer</description>
+
+    <dependencies>
+        <!-- 依赖主 ai-starter（用于接口与通用类） -->
+        <dependency>
+            <groupId>com.swagger.ai</groupId>
+            <artifactId>swagger-ai-enhancer-ai-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Lombok（实现类中使用 @Slf4j 等注解） -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Weaviate SDK -->
+        <dependency>
+            <groupId>io.weaviate</groupId>
+            <artifactId>client</artifactId>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,1993 @@
+/*
+ * swagger-ai-enhancer — UI Plugin (BEM)
+ * 与原版 Swagger UI 兼容，通过 CSS 变量控制颜色与暗色模式
+ * 包含：全局 AI 工具栏、接口级补全按钮、动态描述占位容器、AI 生成标记
+ */
+
+/* ============== 全局容器 ============== */
+.swagger-ui .swagger-ai__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--swagger-ai-border, #d9d9d9);
+    background: var(--swagger-ai-bg, #ffffff);
+    margin: 0;
+    position: relative;
+    z-index: 10;
+}
+
+/* ============== 按钮 ============== */
+.swagger-ui .swagger-ai__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--swagger-ai-border, #d9d9d9);
+    background: var(--swagger-ai-bg, #ffffff);
+    color: var(--swagger-ai-fg, #3b4151);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+}
+
+.swagger-ui .swagger-ai__btn:hover:not(:disabled) {
+    background: var(--color-primary, #4990e2);
+    color: #fff;
+    border-color: var(--color-primary, #4990e2);
+}
+
+.swagger-ui .swagger-ai__btn:disabled,
+.swagger-ui .swagger-ai__btn--loading,
+.swagger-ui .swagger-ai__btn--disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* 置灰按钮不响应 hover */
+.swagger-ui .swagger-ai__btn:disabled:hover,
+.swagger-ui .swagger-ai__btn--disabled:hover {
+    background: inherit;
+    color: inherit;
+    border-color: inherit;
+}
+
+/* ============== 接口级按钮（Operation 旁） ============== */
+.swagger-ui .swagger-ai__op-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--swagger-ai-border, #d9d9d9);
+    background: var(--swagger-ai-bg, #ffffff);
+    color: var(--swagger-ai-fg, #3b4151);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+    vertical-align: middle;
+}
+
+.swagger-ui .swagger-ai__op-btn:hover:not(:disabled) {
+    background: var(--color-primary, #4990e2);
+    color: #fff;
+    border-color: var(--color-primary, #4990e2);
+}
+
+.swagger-ui .swagger-ai__op-btn:disabled,
+.swagger-ui .swagger-ai__op-btn--loading {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* ============== 动态描述占位容器 ============== */
+.swagger-ui .swagger-ai__placeholder {
+    display: inline-block;
+    border: 2px dashed #c0c4cc;
+    padding: 8px;
+    border-radius: 4px;
+    color: #8c8c8c;
+    font-style: italic;
+    font-size: 12px;
+    margin: 4px 0;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+    background: transparent;
+}
+
+.swagger-ui .swagger-ai__placeholder:hover {
+    border-color: var(--color-primary, #4990e2);
+    color: var(--color-primary, #4990e2);
+}
+
+/* 暗色模式：占位容器 —— 虚线边框与文字色更深邃 */
+.swagger-ui.dark .swagger-ai__placeholder {
+    border-color: #555;
+    color: #9aa0a6;
+    background: transparent;
+}
+
+.swagger-ui.dark .swagger-ai__placeholder:hover {
+    border-color: var(--color-primary, #4990e2);
+    color: var(--color-primary, #4990e2);
+}
+
+/* ============== AI 生成标记 ============== */
+.swagger-ui .swagger-ai__ai-badge {
+    display: inline-block;
+    color: #8c8c8c;
+    font-size: 11px;
+    margin-left: 4px;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.swagger-ui.dark .swagger-ai__ai-badge {
+    color: #9aa0a6;
+}
+
+/* ============== Loading spinner ============== */
+.swagger-ui .swagger-ai__spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(74, 74, 74, 0.18);
+    border-top-color: var(--color-primary, #4990e2);
+    border-radius: 50%;
+    animation: swagger-ai-spin 0.8s linear infinite;
+}
+
+/* 暗色模式：动画轨道 —— 使用白色透明值，避免在暗色背景下出现不可见的黑边 */
+.swagger-ui.dark .swagger-ai__spinner {
+    border-color: rgba(255, 255, 255, 0.12);
+    border-top-color: var(--color-primary, #66b3ff);
+}
+
+.swagger-ui .swagger-ai__btn:hover .swagger-ai__spinner,
+.swagger-ui .swagger-ai__op-btn:hover .swagger-ai__spinner {
+    border-top-color: #fff;
+}
+
+@keyframes swagger-ai-spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============== Toast ============== */
+.swagger-ai__toast-container {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.swagger-ui .swagger-ai__toast {
+    pointer-events: auto;
+    background: #e74c3c;
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    min-width: 220px;
+    max-width: 360px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.swagger-ui .swagger-ai__toast--show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.swagger-ui .swagger-ai__toast--info {
+    background: var(--color-primary, #4990e2);
+}
+
+.swagger-ui .swagger-ai__toast--success {
+    background: #27ae60;
+}
+
+/* 暗色模式：Toast 整体更柔和，避免高饱和颜色过于刺眼 */
+.swagger-ui.dark .swagger-ai__toast {
+    background: #c0392b;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.swagger-ui.dark .swagger-ai__toast--info {
+    background: #2b6cb0;
+}
+
+.swagger-ui.dark .swagger-ai__toast--success {
+    background: #2f855a;
+}
+
+/* ============== RAG 设置模态框 ============== */
+.swagger-ai__modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 模态框主体：既可能被包裹在 .swagger-ui 中，也可能独立插入到 body */
+.swagger-ai__modal {
+    background: var(--swagger-ai-bg, #ffffff);
+    color: var(--swagger-ai-fg, #3b4151);
+    border-radius: 8px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    border: 1px solid var(--swagger-ai-border, #e8e8e8);
+}
+
+.swagger-ai__modal h2,
+.swagger-ai__modal h3 {
+    margin: 0 0 12px 0;
+    font-weight: 600;
+    color: inherit;
+}
+
+.swagger-ai__modal h2 { font-size: 18px; }
+.swagger-ai__modal h3 { font-size: 15px; }
+
+.swagger-ui .swagger-ai__btn--small {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+/* 暗色模式：按钮小尺寸 —— 继承主按钮样式 */
+.swagger-ui.dark .swagger-ai__btn--small {
+    background: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__btn--small:hover:not(:disabled) {
+    background: var(--color-primary, #4990e2);
+    border-color: var(--color-primary, #4990e2);
+    color: #fff;
+}
+
+.swagger-ai__modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--swagger-ai-border, #d9d9d9);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+.swagger-ai__modal-section {
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--swagger-ai-border, #e8e8e8);
+}
+
+.swagger-ai__modal-section:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.swagger-ai__modal-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+.swagger-ai__modal-row label {
+    flex: 0 0 140px;
+    font-weight: 500;
+    color: inherit;
+}
+
+.swagger-ui .swagger-ai__modal-input {
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--swagger-ai-border, #d9d9d9);
+    background: #fafafa;
+    color: inherit;
+    font-size: 13px;
+    font-family: inherit;
+    min-width: 0;
+}
+
+.swagger-ui .swagger-ai__modal-input[readonly] {
+    cursor: default;
+    color: #666;
+}
+
+.swagger-ai__modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.swagger-ai__modal-status {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+    font-style: italic;
+    word-break: break-word;
+}
+
+/* 同步结果颜色区分（ok=绿色 / warn=黄色 / err=红色） */
+.swagger-ui .swagger-ai__modal-status.swagger-ai__sync-status--ok {
+    color: #2c874f;
+    background-color: #e6f7ec;
+    font-style: normal;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+.swagger-ui .swagger-ai__modal-status.swagger-ai__sync-status--warn {
+    color: #8a6d00;
+    background-color: #fff8d6;
+    font-style: normal;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+.swagger-ui .swagger-ai__modal-status.swagger-ai__sync-status--err {
+    color: #b3261e;
+    background-color: #fdecea;
+    font-style: normal;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+/* ============== 模态框暗色模式 ============== */
+/* 覆盖两种使用场景：被 .swagger-ui.dark 包裹，或直接以 .swagger-ai__modal 存在于 body */
+.swagger-ui.dark .swagger-ai__modal,
+.swagger-ai__modal.dark {
+    background: #1b1b1b;
+    color: #f0f0f0;
+    border: 1px solid #333;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.swagger-ui.dark .swagger-ai__modal-header {
+    border-bottom-color: #333;
+}
+
+.swagger-ui.dark .swagger-ai__modal-section {
+    border-bottom-color: #333;
+}
+
+.swagger-ui.dark .swagger-ai__modal-input {
+    background: #333;
+    border-color: #555;
+    color: #f0f0f0;
+}
+
+.swagger-ui.dark .swagger-ai__modal-input[readonly] {
+    color: #bbb;
+    background: #2d2d2d;
+}
+
+.swagger-ui.dark .swagger-ai__modal-status {
+    color: #9aa0a6;
+}
+
+.swagger-ui.dark .swagger-ai__modal-status.swagger-ai__sync-status--ok {
+    color: #7ee2a1;
+    background-color: #1d3325;
+}
+.swagger-ui.dark .swagger-ai__modal-status.swagger-ai__sync-status--warn {
+    color: #e0b300;
+    background-color: #3a3316;
+}
+.swagger-ui.dark .swagger-ai__modal-status.swagger-ai__sync-status--err {
+    color: #ff7b72;
+    background-color: #3a1a1a;
+}
+
+/* ============== Tabs & Form（新增） ============== */
+.swagger-ai__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 8px 16px 0 16px;
+    border-bottom: 1px solid var(--swagger-ai-border, #ddd);
+    background: var(--swagger-ai-bg, #fafafa);
+}
+
+.swagger-ai__tab-btn {
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--swagger-ai-border, #ddd);
+    background: transparent;
+    color: #555;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.swagger-ai__tab-btn:hover {
+    background: #eef4ff;
+    color: #1f6feb;
+}
+
+.swagger-ai__tab-btn--active {
+    background: #fff;
+    color: #1f6feb;
+    border: 1px solid var(--swagger-ai-border, #ddd);
+    border-bottom-color: #fff;
+    font-weight: 600;
+}
+
+.swagger-ai__tab-panel {
+    padding: 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.swagger-ai__form-group {
+    margin-bottom: 12px;
+}
+
+.swagger-ai__form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.swagger-ai__form-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--swagger-ai-border, #ccc);
+    border-radius: 4px;
+    font-size: 13px;
+    background: #fff;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.swagger-ai__form-input:focus {
+    outline: none;
+    border-color: #4990e2;
+    box-shadow: 0 0 0 2px rgba(73, 144, 226, 0.18);
+}
+
+.swagger-ai__db-fields {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #f7f9ff;
+    border: 1px dashed #cfd8ff;
+    border-radius: 4px;
+}
+
+.swagger-ai__form-advanced {
+    margin-top: 16px;
+    padding-top: 8px;
+    border-top: 1px dashed #e0e0e0;
+}
+
+.swagger-ai__form-advanced-toggle {
+    cursor: pointer;
+    color: #4990e2;
+    font-size: 13px;
+    font-weight: 600;
+    user-select: none;
+}
+
+.swagger-ai__form-advanced-toggle:hover {
+    color: #1f6feb;
+}
+
+.swagger-ai__form-advanced-body {
+    margin-top: 8px;
+}
+
+.swagger-ai__modal-actions--save {
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+/* AI 模型设置 — 模态框样式 */
+.swagger-ai__model-modal {
+    max-width: 620px;
+}
+
+.swagger-ai__model-type-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.swagger-ai__model-type-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--swagger-ai-border, #ccc);
+    background: #fafafa;
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.swagger-ai__model-type-btn:hover {
+    background: #eef4ff;
+    border-color: #4990e2;
+    color: #1f6feb;
+}
+
+.swagger-ai__model-type-btn--active {
+    background: #4990e2;
+    border-color: #4990e2;
+    color: #fff;
+}
+
+.swagger-ai__form-input[type="password"] {
+    font-family: "Courier New", Consolas, monospace;
+    letter-spacing: 1px;
+}
+
+.swagger-ai__test-connection-btn {
+    min-width: 120px;
+}
+
+.swagger-ai__connection-result {
+    margin-left: 12px;
+    font-size: 12px;
+    align-self: center;
+    color: #888;
+}
+
+.swagger-ai__connection-result--ok {
+    color: #2ea44f;
+    font-weight: 600;
+}
+
+.swagger-ai__connection-result--err {
+    color: #c0392b;
+    font-weight: 600;
+}
+
+.swagger-ai__test-connection-row {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #e0e0e0;
+    justify-content: flex-start;
+}
+
+/* 暗色模式 — AI 模型 / 测试连通性 */
+.swagger-ui.dark .swagger-ai__model-type-btn {
+    background: #2d2d2d;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__model-type-btn:hover {
+    background: #334a66;
+    border-color: #82b1ff;
+    color: #82b1ff;
+}
+
+.swagger-ui.dark .swagger-ai__model-type-btn--active {
+    background: #1f6feb;
+    border-color: #1f6feb;
+    color: #fff;
+}
+
+.swagger-ui.dark .swagger-ai__test-connection-row {
+    border-top-color: #3a3a3a;
+}
+
+.swagger-ui.dark .swagger-ai__connection-result--ok { color: #7ee2a1; }
+.swagger-ui.dark .swagger-ai__connection-result--err { color: #ff7b72; }
+
+/* 暗色模式 — Tabs / Form */
+.swagger-ui.dark .swagger-ai__tabs {
+    background: #222;
+    border-bottom-color: #3a3a3a;
+}
+
+.swagger-ui.dark .swagger-ai__tab-btn {
+    color: #b0b0b0;
+    border-bottom-color: #3a3a3a;
+}
+
+.swagger-ui.dark .swagger-ai__tab-btn:hover {
+    background: #2d2d2d;
+    color: #82b1ff;
+}
+
+.swagger-ui.dark .swagger-ai__tab-btn--active {
+    background: #1b1b1b;
+    color: #82b1ff;
+    border-color: #3a3a3a;
+    border-bottom-color: #1b1b1b;
+}
+
+.swagger-ui.dark .swagger-ai__tab-panel {
+    background: #1b1b1b;
+}
+
+.swagger-ui.dark .swagger-ai__form-label {
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__form-input {
+    background: #2d2d2d;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__form-input:focus {
+    border-color: #82b1ff;
+    box-shadow: 0 0 0 2px rgba(130, 177, 255, 0.25);
+}
+
+.swagger-ui.dark .swagger-ai__db-fields {
+    background: #252530;
+    border-color: #3a3a55;
+}
+
+.swagger-ui.dark .swagger-ai__form-advanced {
+    border-top-color: #3a3a3a;
+}
+
+.swagger-ui.dark .swagger-ai__form-advanced-toggle {
+    color: #82b1ff;
+}
+
+.swagger-ui.dark .swagger-ai__modal-actions--save {
+    border-top-color: #3a3a3a;
+}
+
+/* ============== 暗色模式 ============== */
+.swagger-ui.dark .swagger-ai__toolbar {
+    background: #1e1e1e;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.swagger-ui.dark .swagger-ai__btn {
+    background: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__btn:hover:not(:disabled) {
+    background: #4990e2;
+    border-color: #4990e2;
+    color: #fff;
+}
+
+.swagger-ui.dark .swagger-ai__op-btn {
+    background: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__op-btn:hover:not(:disabled) {
+    background: #4990e2;
+    border-color: #4990e2;
+    color: #fff;
+}
+
+.swagger-ui.dark .swagger-ai__placeholder {
+    border-color: #555;
+    color: #888;
+}
+
+.swagger-ui.dark .swagger-ai__placeholder:hover {
+    border-color: #4990e2;
+    color: #4990e2;
+}
+
+.swagger-ui.dark .swagger-ai__ai-badge {
+    color: #888;
+}
+
+.swagger-ui.dark .swagger-ai__spinner {
+    border-color: rgba(255, 255, 255, 0.15);
+    border-top-color: #4990e2;
+}
+
+/* ============== Markdown 文档面板 ============== */
+.swagger-ai-doc-panel {
+    position: relative;
+    z-index: 20;
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+    background: #ffffff;
+    color: #333333;
+    border-top: 2px solid #4990e2;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0;
+    margin-top: 16px;
+}
+
+.swagger-ai-doc-panel.hidden {
+    display: none !important;
+}
+
+.ai-doc-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #fafafa;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.ai-doc-panel-title {
+    font-weight: 600;
+    color: inherit;
+    font-size: 15px;
+}
+
+.ai-doc-panel-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ai-doc-content {
+    padding: 16px 24px 24px 24px;
+    color: inherit;
+    word-break: break-word;
+}
+
+.ai-doc-content h1, .ai-doc-content h2, .ai-doc-content h3,
+.ai-doc-content h4, .ai-doc-content h5, .ai-doc-content h6 {
+    margin: 20px 0 10px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.ai-doc-content h1 { font-size: 22px; border-bottom: 1px solid #e8e8e8; padding-bottom: 8px; }
+.ai-doc-content h2 { font-size: 18px; }
+.ai-doc-content h3 { font-size: 16px; }
+
+.ai-doc-content p { margin: 8px 0; }
+
+.ai-doc-content ul, .ai-doc-content ol {
+    margin: 8px 0;
+    padding-left: 28px;
+}
+
+.ai-doc-content li { margin: 4px 0; }
+
+.ai-doc-content a {
+    color: #4990e2;
+    text-decoration: none;
+}
+
+.ai-doc-content a:hover {
+    text-decoration: underline;
+}
+
+.ai-doc-content blockquote {
+    margin: 10px 0;
+    padding: 8px 14px;
+    border-left: 4px solid #cfd8dc;
+    background: #f8f9fa;
+    color: #555;
+}
+
+.ai-doc-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 13px;
+}
+
+.ai-doc-content th, .ai-doc-content td {
+    border: 1px solid #e0e0e0;
+    padding: 6px 10px;
+    text-align: left;
+}
+
+.ai-doc-content th {
+    background: #f5f5f5;
+    font-weight: 600;
+}
+
+.ai-doc-content pre {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 10px 0;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.ai-doc-content code {
+    background: #f0f0f0;
+    color: #d6336c;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.ai-doc-content pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}
+
+.ai-doc-content hr {
+    border: none;
+    border-top: 1px solid #e8e8e8;
+    margin: 16px 0;
+}
+
+.ai-doc-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ============== Markdown 暗色模式 ============== */
+.swagger-ui.dark .swagger-ai-doc-panel {
+    background: #1b1b1b;
+    color: #e0e0e0;
+    border-top-color: #4990e2;
+}
+
+.swagger-ui.dark .ai-doc-panel-header {
+    background: #242424;
+    border-bottom-color: #333333;
+}
+
+.swagger-ui.dark .ai-doc-content h1 {
+    border-bottom-color: #333333;
+}
+
+.swagger-ui.dark .ai-doc-content th {
+    background: #2a2a2a;
+}
+
+.swagger-ui.dark .ai-doc-content th,
+.swagger-ui.dark .ai-doc-content td {
+    border-color: #333333;
+}
+
+.swagger-ui.dark .ai-doc-content blockquote {
+    border-left-color: #555555;
+    background: #232323;
+    color: #cccccc;
+}
+
+.swagger-ui.dark .ai-doc-content pre {
+    background: #2d2d2d;
+    color: #e8e8e8;
+}
+
+.swagger-ui.dark .ai-doc-content code {
+    background: #2d2d2d;
+    color: #ff8ab4;
+}
+
+.swagger-ui.dark .ai-doc-content pre code {
+    background: transparent;
+    color: inherit;
+}
+
+.swagger-ui.dark .ai-doc-content hr {
+    border-top-color: #333333;
+}
+
+.swagger-ui.dark .ai-doc-content a {
+    color: #66b3ff;
+}
+
+.swagger-ui.dark .ai-doc-content a:hover {
+    color: #99ccff;
+}
+
+.swagger-ui.dark .ai-doc-content h2,
+.swagger-ui.dark .ai-doc-content h3,
+.swagger-ui.dark .ai-doc-content h4,
+.swagger-ui.dark .ai-doc-content h5,
+.swagger-ui.dark .ai-doc-content h6 {
+    color: #e8e8e8;
+}
+
+.swagger-ui.dark .ai-doc-content p {
+    color: #d9d9d9;
+}
+
+.swagger-ui.dark .ai-doc-content li {
+    color: #d9d9d9;
+}
+
+.swagger-ui.dark .ai-doc-content th {
+    background: #2a2a2a;
+    color: #e8e8e8;
+}
+
+.swagger-ui.dark .ai-doc-content td {
+    color: #d9d9d9;
+}
+
+/* ============== AI 生成历史记录面板 ============== */
+.ai-history-dropdown {
+    position: relative;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fafafa;
+    color: #333333;
+    border-top: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    z-index: 2;
+}
+
+.ai-history-dropdown-header {
+    padding: 8px 12px;
+    font-weight: 600;
+    border-bottom: 1px solid #e8e8e8;
+    color: #333;
+}
+
+.ai-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ai-history-item:last-child {
+    border-bottom: none;
+}
+
+.ai-history-item:hover {
+    background: #f5f5f5;
+}
+
+.ai-history-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ai-history-item-title {
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ai-history-item-time {
+    color: #888;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.ai-history-item-delete {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #a00;
+    padding: 2px 8px;
+    font-size: 13px;
+    border-radius: 3px;
+    margin-left: 8px;
+}
+
+.ai-history-item-delete:hover {
+    background: #fde8e8;
+}
+
+.ai-history-empty {
+    padding: 12px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/* ============== 历史记录面板暗色模式 ============== */
+.swagger-ui.dark .ai-history-dropdown {
+    background: #1b1b1b;
+    color: #f0f0f0;
+    border-color: #333;
+}
+
+.swagger-ui.dark .ai-history-dropdown-header {
+    color: #eee;
+    border-bottom-color: #333;
+}
+
+.swagger-ui.dark .ai-history-item {
+    border-bottom-color: #2a2a2a;
+}
+
+.swagger-ui.dark .ai-history-item-title {
+    color: #f0f0f0;
+}
+
+.swagger-ui.dark .ai-history-item-time {
+    color: #999;
+}
+
+.swagger-ui.dark .ai-history-item:hover {
+    background: #2a2a2a;
+}
+
+.swagger-ui.dark .ai-history-item-delete {
+    color: #ff8a8a;
+}
+
+.swagger-ui.dark .ai-history-item-delete:hover {
+    background: #3a1f1f;
+}
+
+.swagger-ui.dark .ai-history-empty {
+    color: #999;
+}
+
+/* --- 删除 Collection 区域 --- */
+.swagger-ai__delete-collection-section {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed #ccc;
+}
+
+.swagger-ai__delete-collection-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: 1px solid #c0392b;
+}
+
+.swagger-ai__delete-collection-btn:hover:not(:disabled) {
+    background: #c0392b;
+    border-color: #a93226;
+}
+
+/* 暗色模式 */
+.swagger-ui.dark .swagger-ai__delete-collection-section {
+    border-top-color: #555;
+}
+
+.swagger-ui.dark .swagger-ai__delete-collection-btn {
+    background: #a93226;
+    border-color: #8b281e;
+    color: #fff;
+}
+
+.swagger-ui.dark .swagger-ai__delete-collection-btn:hover:not(:disabled) {
+    background: #8b281e;
+    border-color: #6e1f17;
+}
+
+/* ============== 文档模态弹窗（替代底部 doc-panel�?============== */
+
+/* overlay 与主�?*/
+.swagger-ai__modal-overlay.swagger-ai__doc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.swagger-ai__modal.swagger-ai__doc-modal {
+    background: #ffffff;
+    color: #3b4151;
+    border-radius: 8px;
+    max-width: 80vw;
+    width: 80vw;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    border: 1px solid #d9d9d9;
+    overflow: hidden;
+}
+
+/* header */
+.swagger-ai__doc-modal .swagger-ai__modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e8e8e8;
+    flex: 0 0 auto;
+}
+
+.swagger-ai__doc-modal .swagger-ai__modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* content �?*/
+.swagger-ai__doc-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 16px 20px;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.swagger-ai__doc-content h1,
+.swagger-ai__doc-content h2,
+.swagger-ai__doc-content h3,
+.swagger-ai__doc-content h4,
+.swagger-ai__doc-content h5,
+.swagger-ai__doc-content h6 {
+    margin: 16px 0 8px;
+    font-weight: 600;
+    color: inherit;
+}
+
+.swagger-ai__doc-content h1 {
+    font-size: 22px;
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 8px;
+}
+.swagger-ai__doc-content h2 { font-size: 18px; }
+.swagger-ai__doc-content h3 { font-size: 16px; }
+.swagger-ai__doc-content h4 { font-size: 15px; }
+
+.swagger-ai__doc-content p { margin: 8px 0; }
+
+.swagger-ai__doc-content ul,
+.swagger-ai__doc-content ol {
+    margin: 8px 0;
+    padding-left: 24px;
+}
+
+.swagger-ai__doc-content li { margin: 4px 0; }
+
+.swagger-ai__doc-content a {
+    color: #4990e2;
+    text-decoration: none;
+}
+
+.swagger-ai__doc-content a:hover { text-decoration: underline; }
+
+.swagger-ai__doc-content blockquote {
+    margin: 12px 0;
+    padding: 8px 12px;
+    border-left: 4px solid #d9d9d9;
+    background: #fafafa;
+    color: #555;
+}
+
+.swagger-ai__doc-content table {
+    border-collapse: collapse;
+    margin: 12px 0;
+    width: 100%;
+}
+
+.swagger-ai__doc-content th,
+.swagger-ai__doc-content td {
+    border: 1px solid #e8e8e8;
+    padding: 6px 10px;
+    text-align: left;
+}
+
+.swagger-ai__doc-content th {
+    background: #f7f7f7;
+    font-weight: 600;
+}
+
+.swagger-ai__doc-content pre {
+    background: #f5f5f5;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    margin: 10px 0;
+    font-size: 13px;
+}
+
+.swagger-ai__doc-content code {
+    background: #f5f5f5;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+}
+
+.swagger-ai__doc-content pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.swagger-ai__doc-content hr {
+    border: 0;
+    border-top: 1px solid #e8e8e8;
+    margin: 16px 0;
+}
+
+.swagger-ai__doc-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+}
+
+/* 底部操作栏（三行分组布局）*/
+.swagger-ai__doc-modal-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e8e8e8;
+    background: #fafafa;
+    flex: 0 0 auto;
+}
+
+/* 每一行通用样式 */
+.swagger-ai__doc-footer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 第一行：按钮所在的行，保持左对齐 */
+.swagger-ai__doc-footer-row--actions {
+    flex-wrap: wrap;
+}
+
+/* 第二行：下载格式复选框，紧凑排列 */
+.swagger-ai__doc-footer-row--formats {
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* 第三行：下载按钮所在的行 */
+.swagger-ai__doc-footer-row--download {
+    /* 可按需调整对齐方式，默认左对齐 */
+}
+
+/* 下载格式标签（为兼容旧 DOM 仍保留）*/
+.swagger-ai-doc-download-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.swagger-ai-doc-format-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    user-select: none;
+}
+
+.swagger-ai-doc-format-check {
+    cursor: pointer;
+    transform: translateY(1px);
+}
+
+/* 历史记录下拉容器（弹窗内�?*/
+.swagger-ai-doc-history-dropdown {
+    border-top: 1px dashed #e8e8e8;
+    background: #fafafa;
+    padding: 8px 16px;
+    max-height: 30vh;
+    overflow-y: auto;
+    flex: 0 0 auto;
+}
+
+.swagger-ai-doc-history-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.swagger-ai-doc-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.swagger-ai-doc-history-item:last-child { border-bottom: none; }
+
+.swagger-ai-doc-history-item:hover {
+    background: #f0f6ff;
+}
+
+.swagger-ai-doc-history-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.swagger-ai-doc-history-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.swagger-ai-doc-history-item-time {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.swagger-ai-doc-history-item-delete {
+    border: none;
+    background: transparent;
+    color: #b0b0b0;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.swagger-ai-doc-history-item-delete:hover {
+    background: #ffe5e5;
+    color: #d00;
+}
+
+.swagger-ai-doc-history-empty {
+    padding: 8px 0;
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+}
+
+/* ============== 暗色模式 ============== */
+.swagger-ui.dark .swagger-ai__doc-modal,
+body.dark .swagger-ai__doc-modal,
+[data-theme="dark"] .swagger-ai__doc-modal,
+.swagger-ai__doc-modal.swagger-ai__dark {
+    background: #1e1e1e;
+    color: #ccc;
+    border-color: #444;
+}
+
+.swagger-ui.dark .swagger-ai__doc-modal .swagger-ai__modal-header,
+body.dark .swagger-ai__doc-modal .swagger-ai__modal-header,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__modal-header {
+    border-bottom-color: #444;
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content,
+body.dark .swagger-ai__doc-content,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content {
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content h1,
+body.dark .swagger-ai__doc-content h1,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content h1 {
+    border-bottom-color: #3a3a3a;
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content th,
+body.dark .swagger-ai__doc-content th,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content th {
+    background: #2a2a2a;
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content th,
+body.dark .swagger-ai__doc-content th,
+.swagger-ui.dark .swagger-ai__doc-content td,
+body.dark .swagger-ai__doc-content td,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content th,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content td {
+    border-color: #3a3a3a;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content blockquote,
+body.dark .swagger-ai__doc-content blockquote,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content blockquote {
+    background: #2a2a2a;
+    color: #bbb;
+    border-left-color: #555;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content pre,
+body.dark .swagger-ai__doc-content pre,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content pre {
+    background: #2a2a2a;
+    border-color: #3a3a3a;
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content code,
+body.dark .swagger-ai__doc-content code,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content code {
+    background: #2a2a2a;
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content pre code,
+body.dark .swagger-ai__doc-content pre code,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content pre code {
+    background: transparent;
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content hr,
+body.dark .swagger-ai__doc-content hr,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content hr {
+    border-top-color: #3a3a3a;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content a,
+body.dark .swagger-ai__doc-content a,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content a {
+    color: #6ab0ff;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content a:hover,
+body.dark .swagger-ai__doc-content a:hover,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content a:hover {
+    color: #8fc0ff;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content h2,
+body.dark .swagger-ai__doc-content h2,
+.swagger-ui.dark .swagger-ai__doc-content h3,
+body.dark .swagger-ai__doc-content h3,
+.swagger-ui.dark .swagger-ai__doc-content h4,
+body.dark .swagger-ai__doc-content h4,
+.swagger-ui.dark .swagger-ai__doc-content h5,
+body.dark .swagger-ai__doc-content h5,
+.swagger-ui.dark .swagger-ai__doc-content h6,
+body.dark .swagger-ai__doc-content h6,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content h2,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content h3,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content h4,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content h5,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content h6 {
+    color: #e0e0e0;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content p,
+body.dark .swagger-ai__doc-content p,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content p {
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content li,
+body.dark .swagger-ai__doc-content li,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content li {
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__doc-modal-footer,
+body.dark .swagger-ai__doc-modal-footer,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-modal-footer {
+    background: #252525;
+    border-top-color: #444;
+}
+
+.swagger-ui.dark .swagger-ai-doc-format-label,
+body.dark .swagger-ai-doc-format-label,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-format-label {
+    color: #bbb;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-dropdown,
+body.dark .swagger-ai-doc-history-dropdown,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-dropdown {
+    background: #252525;
+    border-top-color: #444;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-header,
+body.dark .swagger-ai-doc-history-header,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-header {
+    color: #aaa;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-item,
+body.dark .swagger-ai-doc-history-item,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-item {
+    border-bottom-color: #333;
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-item:hover,
+body.dark .swagger-ai-doc-history-item:hover,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-item:hover {
+    background: #2c3e50;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-item-title,
+body.dark .swagger-ai-doc-history-item-title,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-item-title {
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-item-time,
+body.dark .swagger-ai-doc-history-item-time,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-item-time {
+    color: #888;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-item-delete,
+body.dark .swagger-ai-doc-history-item-delete,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-item-delete {
+    color: #888;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-item-delete:hover,
+body.dark .swagger-ai-doc-history-item-delete:hover,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-item-delete:hover {
+    background: #3a1a1a;
+    color: #ff7b72;
+}
+
+.swagger-ui.dark .swagger-ai-doc-history-empty,
+body.dark .swagger-ai-doc-history-empty,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-empty {
+    color: #888;
+}
+
+/* 滚动条美�?*/
+.swagger-ai__doc-content::-webkit-scrollbar,
+.swagger-ai-doc-history-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.swagger-ai__doc-content::-webkit-scrollbar-thumb,
+.swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.swagger-ai__doc-content::-webkit-scrollbar-thumb:hover,
+.swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content::-webkit-scrollbar-thumb,
+body.dark .swagger-ai__doc-content::-webkit-scrollbar-thumb,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content::-webkit-scrollbar-thumb,
+.swagger-ui.dark .swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb,
+body.dark .swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+.swagger-ui.dark .swagger-ai__doc-content::-webkit-scrollbar-thumb:hover,
+body.dark .swagger-ai__doc-content::-webkit-scrollbar-thumb:hover,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai__doc-content::-webkit-scrollbar-thumb:hover,
+.swagger-ui.dark .swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb:hover,
+body.dark .swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb:hover,
+.swagger-ai__doc-modal.swagger-ai__dark .swagger-ai-doc-history-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* ============== Skill 文档设置区域 ============== */
+.swagger-ui .swagger-ai__skill-section,
+body .swagger-ai__skill-section {
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.swagger-ui .swagger-ai__skill-section h4,
+body .swagger-ai__skill-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+}
+
+.swagger-ui .swagger-ai__skill-content,
+body .swagger-ai__skill-content {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.swagger-ui .swagger-ai__skill-content .swagger-ai__modal-row,
+body .swagger-ai__skill-content .swagger-ai__modal-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.swagger-ui .swagger-ai__skill-content .swagger-ai__modal-row label,
+body .swagger-ai__skill-content .swagger-ai__modal-row label {
+    min-width: 136px;
+    font-size: 13px;
+    color: #333;
+}
+
+.swagger-ui .swagger-ai__skill-content .swagger-ai__modal-input,
+body .swagger-ai__skill-content .swagger-ai__modal-input {
+    flex: 1;
+}
+
+.swagger-ui .swagger-ai__skill-tip,
+body .swagger-ai__skill-tip {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+}
+
+/* 暗色模式适配 */
+.swagger-ui.dark .swagger-ai__skill-section,
+body.dark .swagger-ai__skill-section,
+[data-theme="dark"] .swagger-ai__skill-section {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__skill-section h4,
+body.dark .swagger-ai__skill-section h4,
+[data-theme="dark"] .swagger-ai__skill-section h4 {
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__skill-content,
+body.dark .swagger-ai__skill-content,
+[data-theme="dark"] .swagger-ai__skill-content {
+    color: #bbb;
+}
+
+.swagger-ui.dark .swagger-ai__skill-content .swagger-ai__modal-row label,
+body.dark .swagger-ai__skill-content .swagger-ai__modal-row label,
+[data-theme="dark"] .swagger-ai__skill-content .swagger-ai__modal-row label {
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__skill-tip,
+body.dark .swagger-ai__skill-tip,
+[data-theme="dark"] .swagger-ai__skill-tip {
+    color: #999;
+}
+
+/* ============== RAG 指标区域 ============== */
+.swagger-ui .swagger-ai__metrics-section,
+body .swagger-ai__metrics-section {
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.swagger-ui .swagger-ai__metrics-section h4,
+body .swagger-ai__metrics-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+}
+
+.swagger-ui .swagger-ai__metrics-content,
+body .swagger-ai__metrics-content {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.swagger-ui .swagger-ai__metrics-block,
+body .swagger-ai__metrics-block {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.swagger-ui .swagger-ai__metrics-subtitle,
+body .swagger-ai__metrics-subtitle {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.swagger-ui .swagger-ai__metrics-line,
+body .swagger-ai__metrics-line {
+    padding: 2px 0;
+    font-size: 13px;
+}
+
+.swagger-ui .swagger-ai__metrics-line--ok,
+body .swagger-ai__metrics-line--ok {
+    color: #1a7f37;
+    font-weight: 600;
+}
+
+.swagger-ui .swagger-ai__metrics-tip,
+body .swagger-ai__metrics-tip {
+    color: #666;
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+.swagger-ui .swagger-ai__metrics-tip--error,
+body .swagger-ai__metrics-tip--error {
+    color: #b00020;
+}
+
+/* 暗色模式 */
+.swagger-ui.dark .swagger-ai__metrics-section,
+body.dark .swagger-ai__metrics-section,
+[data-theme="dark"] .swagger-ai__metrics-section {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-section h4,
+body.dark .swagger-ai__metrics-section h4 {
+    color: #eee;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-content,
+body.dark .swagger-ai__metrics-content {
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-block,
+body.dark .swagger-ai__metrics-block {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-subtitle,
+body.dark .swagger-ai__metrics-subtitle {
+    color: #eee;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-line,
+body.dark .swagger-ai__metrics-line {
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-line--ok,
+body.dark .swagger-ai__metrics-line--ok {
+    color: #4caf50;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-tip,
+body.dark .swagger-ai__metrics-tip {
+    color: #bbb;
+}
+
+.swagger-ui.dark .swagger-ai__metrics-tip--error,
+body.dark .swagger-ai__metrics-tip--error {
+    color: #ff6b6b;
+}
+
+/* ============== 文档润色设置区域 ============== */
+.swagger-ui .swagger-ai__refine-section,
+body .swagger-ai__refine-section {
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.swagger-ui .swagger-ai__refine-section h4,
+body .swagger-ai__refine-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+}
+
+.swagger-ui .swagger-ai__refine-content,
+body .swagger-ai__refine-content {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.swagger-ui .swagger-ai__refine-tip,
+body .swagger-ai__refine-tip {
+    margin-top: 8px;
+    margin-left: 20px;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+}
+
+/* 暗色模式适配 */
+.swagger-ui.dark .swagger-ai__refine-section,
+body.dark .swagger-ai__refine-section,
+[data-theme="dark"] .swagger-ai__refine-section {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__refine-section h4,
+body.dark .swagger-ai__refine-section h4,
+[data-theme="dark"] .swagger-ai__refine-section h4 {
+    color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__refine-tip,
+body.dark .swagger-ai__refine-tip,
+[data-theme="dark"] .swagger-ai__refine-tip {
+    color: #999;
+}
+
+/* 修复-48：Request body / Response Schema 字段的描述代码块 */
+.swagger-ai__field-descriptions {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.swagger-ai__field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.swagger-ai__field-name {
+  font-weight: 600;
+  color: #333;
+  min-width: 140px;
+}
+
+/* 暗色模式 */
+.swagger-ui.dark .swagger-ai__field-descriptions,
+body.dark .swagger-ai__field-descriptions {
+  background: #2a2a2a;
+  color: #ccc;
+}
+
+.swagger-ui.dark .swagger-ai__field-name,
+body.dark .swagger-ai__field-name {
+  color: #e0e0e0;
+}
+
+/* 增强-6a：标签行右侧补全字段描述按钮
+   复用 .swagger-ai__btn 基础样式，仅调整尺寸与留白 */
+.swagger-ai__field-desc-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+/* 增强-6b：Example Value 模式下的字段描述代码块（紧跟在原生 JSON 代码块下方） */
+.swagger-ai__desc-code-block {
+  margin-top: 12px;
+}
+
+.swagger-ai__desc-code-block pre {
+  background: #333 !important;
+  color: #fff !important;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* 增强-6b：Schema 模式下的字段描述表格（复用原生 model 表格视觉） */
+.swagger-ai__desc-schema-table {
+  margin-top: 12px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.swagger-ai__desc-schema-table .property-row td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #eaeaea;
+  vertical-align: top;
+  font-size: 13px;
+}
+
+.swagger-ai__desc-schema-table .prop-name {
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  width: 28%;
+}
+
+.swagger-ai__desc-schema-table .prop-desc {
+  color: #555;
+}
+
+/* 暗色模式适配 */
+.swagger-ui.dark .swagger-ai__desc-code-block pre,
+body.dark .swagger-ai__desc-code-block pre {
+  background: #1e1e1e !important;
+  color: #eaeaea !important;
+}
+
+.swagger-ui.dark .swagger-ai__desc-schema-table .property-row td,
+body.dark .swagger-ai__desc-schema-table .property-row td {
+  border-bottom-color: #333;
+  color: #ddd;
+}
+
+.swagger-ui.dark .swagger-ai__desc-schema-table .prop-name,
+body.dark .swagger-ai__desc-schema-table .prop-name {
+  color: #eaeaea;
+}
+
+.swagger-ui.dark .swagger-ai__desc-schema-table .prop-desc,
+body.dark .swagger-ai__desc-schema-table .prop-desc {
+  color: #bbb;
+}
